@@ -64,7 +64,7 @@ export const PersonaSelector: React.FC<PersonaSelectorProps> = ({ onSubmit }) =>
                         onChange={(e) => setName(e.target.value)}
                         placeholder="e.g., Alex Doe"
                         required
-                        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-lightblue focus:border-brand-lightblue transition-shadow duration-200"
+                        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-lightblue focus:border-brand-lightblue transition-all duration-200 bg-gray-100 text-gray-900 focus:bg-white"
                     />
                 </div>
                 <div>
@@ -79,7 +79,7 @@ export const PersonaSelector: React.FC<PersonaSelectorProps> = ({ onSubmit }) =>
                         onChange={(e) => setAge(e.target.value)}
                         placeholder="e.g., 16"
                         required
-                        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-lightblue focus:border-brand-lightblue transition-shadow duration-200"
+                        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-lightblue focus:border-brand-lightblue transition-all duration-200 bg-gray-100 text-gray-900 focus:bg-white"
                     />
                 </div>
             </div>

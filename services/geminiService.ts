@@ -17,10 +17,10 @@ export const generateCareerAdvice = async (userInfo: UserInfo, formData: CareerF
       Here is a user's profile:
       - Name: ${userInfo.name}
       - Age: ${userInfo.age}
-      - Current Status: ${userInfo.persona.charAt(0).toUpperCase() + userInfo.persona.slice(1)} Student
+      - Current Status: ${userInfo.persona === 'professional' ? 'Working Professional' : `${userInfo.persona.charAt(0).toUpperCase() + userInfo.persona.slice(1)} Student`}
     `;
 
-    // Add persona-specific fields
+    // Add persona-specific fields and common data
     if (userInfo.persona === 'school' && formData.grade) {
       prompt += `\n- Grade: ${formData.grade}`;
     }
@@ -31,16 +31,21 @@ export const generateCareerAdvice = async (userInfo: UserInfo, formData: CareerF
     if (userInfo.persona === 'professional') {
       if (formData.jobTitle) prompt += `\n- Job Title: ${formData.jobTitle}`;
       if (formData.industry) prompt += `\n- Industry: ${formData.industry}`;
+      prompt += `\n- Core Competencies & Strengths: ${formData.cognitiveAbilities}`;
+      prompt += `\n- Professional Interests & Passions: ${formData.interests}`;
+      if (formData.achievements) prompt += `\n- Professional Achievements: ${formData.achievements}`;
+      if (formData.certifications) prompt += `\n- Professional Development & Certifications: ${formData.certifications}`;
+    } else {
+      // For school and college
+      prompt += `\n- Interests: ${formData.interests}`;
+      if (formData.physicalActivities) prompt += `\n- Physical Activities: ${formData.physicalActivities}`;
+      prompt += `\n- Thinking Style: ${formData.cognitiveAbilities}`;
+      if (formData.achievements) prompt += `\n- Academic Achievements: ${formData.achievements}`;
+      if (formData.certifications) prompt += `\n- Certifications & Courses: ${formData.certifications}`;
+      if (formData.extracurriculars) prompt += `\n- Extracurriculars: ${formData.extracurriculars}`;
     }
 
-    // Add common fields
     prompt += `
-      - Interests: ${formData.interests}
-      - Physical Activities: ${formData.physicalActivities}
-      - Cognitive Abilities: ${formData.cognitiveAbilities}
-      - Achievements: ${formData.achievements}
-      - Certifications & Courses: ${formData.certifications}
-      - Extracurriculars: ${formData.extracurriculars}
 
       Based on this comprehensive profile, please provide a personalized career path recommendation.
     `;

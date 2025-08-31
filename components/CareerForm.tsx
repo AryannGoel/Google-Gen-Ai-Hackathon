@@ -29,7 +29,7 @@ const FormField: React.FC<{
                 id={id}
                 name={id}
                 rows={3}
-                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-lightblue focus:border-brand-lightblue transition-shadow duration-200"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-lightblue focus:border-brand-lightblue transition-all duration-200 bg-gray-100 text-gray-900 focus:bg-white"
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
@@ -40,7 +40,7 @@ const FormField: React.FC<{
                 id={id}
                 name={id}
                 type="text"
-                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-lightblue focus:border-brand-lightblue transition-shadow duration-200"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-lightblue focus:border-brand-lightblue transition-all duration-200 bg-gray-100 text-gray-900 focus:bg-white"
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
@@ -89,8 +89,10 @@ export const CareerForm: React.FC<CareerFormProps> = ({ onSubmit, isLoading, per
     onSubmit(formData);
   };
 
-  const achievementsLabel = persona === 'professional' ? 'Professional Achievements' : 'Academic Achievements';
-  const achievementsPlaceholder = persona === 'professional' 
+  const isProfessional = persona === 'professional';
+
+  const achievementsLabel = isProfessional ? 'Professional Achievements' : 'Academic Achievements';
+  const achievementsPlaceholder = isProfessional
     ? "e.g., Led a major project, received 'Employee of the Month', increased team efficiency by 20%..."
     : "e.g., Won the school science fair, top marks in mathematics, published a story in the school magazine...";
 
@@ -113,29 +115,31 @@ export const CareerForm: React.FC<CareerFormProps> = ({ onSubmit, isLoading, per
         </div>
        )}
 
-      <FormSection title="About You">
+      <FormSection title={isProfessional ? "Your Professional Profile" : "About You"}>
           <FormField
             id="interests"
-            label="Your Interests"
-            placeholder="e.g., building with LEGOs, drawing fantasy maps, reading about ancient history, video games..."
+            label={isProfessional ? "Professional Interests & Passions" : "Your Interests"}
+            placeholder={isProfessional ? "e.g., Sustainable technology, data visualization, mentoring junior developers, public speaking..." : "e.g., building with LEGOs, drawing fantasy maps, reading about ancient history, video games..."}
             value={formData.interests}
             onChange={handleChange}
             icon={<LightbulbIcon />}
             required
           />
-          <FormField
-            id="physicalActivities"
-            label="Your Physical Activities"
-            placeholder="e.g., love running long distances, good at team sports like basketball, enjoy hiking and being outdoors..."
-            value={formData.physicalActivities}
-            onChange={handleChange}
-            icon={<DumbbellIcon />}
-            required
-          />
+          {!isProfessional && (
+            <FormField
+                id="physicalActivities"
+                label="Your Physical Activities"
+                placeholder="e.g., love running long distances, good at team sports like basketball, enjoy hiking and being outdoors..."
+                value={formData.physicalActivities}
+                onChange={handleChange}
+                icon={<DumbbellIcon />}
+                required
+            />
+          )}
           <FormField
             id="cognitiveAbilities"
-            label="Your Thinking Style"
-            placeholder="e.g., I'm great at puzzles and logic games, I enjoy debating and seeing different perspectives, I'm very imaginative..."
+            label={isProfessional ? "Core Competencies & Strengths" : "Your Thinking Style"}
+            placeholder={isProfessional ? "e.g., Strategic planning, complex problem-solving, cross-functional team leadership, data analysis..." : "e.g., I'm great at puzzles and logic games, I enjoy debating and seeing different perspectives, I'm very imaginative..."}
             value={formData.cognitiveAbilities}
             onChange={handleChange}
             icon={<BrainIcon />}
@@ -143,7 +147,7 @@ export const CareerForm: React.FC<CareerFormProps> = ({ onSubmit, isLoading, per
           />
       </FormSection>
 
-      <FormSection title="Your Experience & Activities">
+      <FormSection title={isProfessional ? "Experience & Qualifications" : "Your Experience & Activities"}>
           {persona === 'school' && (
              <FormField
                 id="grade"
@@ -176,7 +180,7 @@ export const CareerForm: React.FC<CareerFormProps> = ({ onSubmit, isLoading, per
               />
             </>
           )}
-          {persona === 'professional' && (
+          {isProfessional && (
             <>
               <FormField
                 id="jobTitle"
@@ -208,20 +212,22 @@ export const CareerForm: React.FC<CareerFormProps> = ({ onSubmit, isLoading, per
           />
           <FormField
             id="certifications"
-            label="Certifications & Courses"
-            placeholder="e.g., Completed an online course in Python, certified in first-aid, finished a public speaking workshop..."
+            label={isProfessional ? "Professional Development & Certifications" : "Certifications & Courses"}
+            placeholder={isProfessional ? "e.g., PMP Certification, Advanced Google Analytics, AWS Certified Solutions Architect..." : "e.g., Completed an online course in Python, certified in first-aid, finished a public speaking workshop..."}
             value={formData.certifications}
             onChange={handleChange}
             icon={<DocumentTextIcon />}
           />
-          <FormField
-            id="extracurriculars"
-            label="Extracurriculars / Volunteer Work"
-            placeholder="e.g., Captain of the chess club, member of the debate team, volunteer at the local animal shelter..."
-            value={formData.extracurriculars}
-            onChange={handleChange}
-            icon={<UsersIcon />}
-          />
+          {!isProfessional && (
+            <FormField
+                id="extracurriculars"
+                label="Extracurriculars / Volunteer Work"
+                placeholder="e.g., Captain of the chess club, member of the debate team, volunteer at the local animal shelter..."
+                value={formData.extracurriculars}
+                onChange={handleChange}
+                icon={<UsersIcon />}
+            />
+           )}
       </FormSection>
       
       <div className="text-center pt-4">
