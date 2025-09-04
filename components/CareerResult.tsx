@@ -21,58 +21,86 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
   "Further Guidance:": <UsersIcon />,
 };
 
-const formatAdvice = (text: string): React.ReactNode[] => {
-    const nodes: React.ReactNode[] = [];
-    const lines = text.split('\n').filter(line => line.trim() !== '');
-    let keyCounter = 0;
-    let listItems: React.ReactNode[] = [];
+// New parser to structure the AI's response
+const parseAdviceIntoStructure = (text: string) => {
+    const sectionRegex = /(\*\*The 'Why':\*\*|\*\*A Glimpse into the Future:\*\*|\*\*Preparing for Your Future:\*\*|\*\*Further Guidance:\*\*)/;
+    const parts = text.split(sectionRegex);
 
-    const flushList = () => {
-        if (listItems.length > 0) {
-            nodes.push(
-                <ul key={`ul-${keyCounter++}`} className="list-disc list-inside space-y-2 mb-4 pl-4 text-brand-subtle">
-                    {listItems}
-                </ul>
-            );
-            listItems = [];
+    const headerPart = parts[0];
+    const headerLines = headerPart.trim().split('\n').filter(line => line.trim());
+    
+    let careerTitle = "Your Career Recommendation";
+    const greetingLines: string[] = [];
+    let titleFound = false;
+
+    // Find career title (usually the last bold line in the intro)
+    for (let i = headerLines.length - 1; i >= 0; i--) {
+        const line = headerLines[i].trim();
+        if (line.startsWith('**') && line.endsWith('**') && !titleFound) {
+            careerTitle = line.substring(2, line.length - 2);
+            titleFound = true;
+        } else if (titleFound) {
+            greetingLines.unshift(headerLines[i]);
         }
-    };
+    }
+    // If no title found in the loop, the remaining lines are the greeting
+    if (!titleFound) {
+        greetingLines.unshift(...headerLines);
+    }
+    const greeting = greetingLines.join('\n');
 
-    lines.forEach((line) => {
+    const sections = [];
+    for (let i = 1; i < parts.length; i += 2) {
+        const title = parts[i].replace(/\*\*/g, '');
+        const content = parts[i + 1]?.trim() || '';
+        if (title && content) {
+            sections.push({ title, content });
+        }
+    }
+
+    return { greeting, careerTitle, sections };
+};
+
+// New component to render content with lists and paragraphs
+const SectionContent: React.FC<{ content: string }> = ({ content }) => {
+    const nodes = content.split('\n').filter(line => line.trim() !== '').map((line) => {
         const trimmed = line.trim();
         if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
-            listItems.push(<li key={`li-${keyCounter++}`}>{trimmed.substring(2)}</li>);
-            return;
+            return { type: 'li', text: trimmed.substring(2) };
         }
-        flushList();
-        if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
-            const content = trimmed.substring(2, trimmed.length - 2);
-            const icon = SECTION_ICONS[content];
-            if (icon) {
-                nodes.push(
-                    <h3 key={`h3-${keyCounter++}`} className="flex items-center text-xl font-semibold text-brand-text mt-6 mb-3">
-                        <span className="text-brand-lightblue mr-2">{icon}</span>
-                        {content}
-                    </h3>
-                );
-            } else {
-                nodes.push(
-                    <h2 key={`h2-${keyCounter++}`} className="text-3xl font-bold text-brand-blue my-4 text-center">
-                        {content}
-                    </h2>
-                );
-            }
+        return { type: 'p', text: trimmed };
+    });
+
+    const renderedNodes: React.ReactNode[] = [];
+    let listItems: string[] = [];
+    
+    nodes.forEach((node, index) => {
+        if (node.type === 'li') {
+            listItems.push(node.text);
         } else {
-            nodes.push(
-                <p key={`p-${keyCounter++}`} className="text-brand-subtle leading-relaxed mb-4">
-                    {trimmed}
-                </p>
-            );
+            if (listItems.length > 0) {
+                renderedNodes.push(
+                    <ul key={`ul-${index}`} className="list-disc list-inside space-y-2 mt-4 pl-4 text-brand-subtle">
+                        {listItems.map((item, liIndex) => <li key={liIndex}>{item}</li>)}
+                    </ul>
+                );
+                listItems = [];
+            }
+            renderedNodes.push(<p key={`p-${index}`} className="text-brand-subtle leading-relaxed mt-4">{node.text}</p>);
         }
     });
-    flushList();
-    return nodes;
+
+    if (listItems.length > 0) {
+        renderedNodes.push(
+            <ul key="ul-final" className="list-disc list-inside space-y-2 mt-4 pl-4 text-brand-subtle">
+                {listItems.map((item, liIndex) => <li key={liIndex}>{item}</li>)}
+            </ul>
+        );
+    }
+
+    return <>{renderedNodes}</>;
 };
+
 
 const parseSkills = (text: string): string[] => {
     const skills: string[] = [];
@@ -190,12 +218,32 @@ const SkillsHub: React.FC<{ skills: string[] }> = ({ skills }) => {
 
 export const CareerResult: React.FC<CareerResultProps> = ({ advice, onReset }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const parsedAdvice = useMemo(() => parseAdviceIntoStructure(advice), [advice]);
   const skills = useMemo(() => parseSkills(advice), [advice]);
 
   return (
-    <div className="animate-fade-in text-left">
-      <div className="prose max-w-none">
-        {formatAdvice(advice)}
+    <div className="animate-fade-in text-left space-y-8">
+      <header className="text-center">
+        <p className="text-lg text-brand-subtle mb-4 leading-relaxed">{parsedAdvice.greeting}</p>
+        <h2 className="text-3xl sm:text-4xl font-bold text-brand-blue tracking-tight">
+            {parsedAdvice.careerTitle}
+        </h2>
+      </header>
+
+      <div className="space-y-6">
+        {parsedAdvice.sections.map(({ title, content }) => (
+            <section key={title} className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 transition-shadow hover:shadow-xl">
+                <h3 className="flex items-center text-xl font-semibold text-brand-text">
+                    <span className="flex items-center justify-center h-10 w-10 text-brand-lightblue mr-4 p-2 bg-blue-50 rounded-full">
+                        {SECTION_ICONS[title]}
+                    </span>
+                    {title}
+                </h3>
+                <div className="mt-2 pl-[56px]"> {/* 56px = 40px icon width + 16px margin */}
+                   <SectionContent content={content} />
+                </div>
+            </section>
+        ))}
       </div>
       
       <SkillsHub skills={skills} />
