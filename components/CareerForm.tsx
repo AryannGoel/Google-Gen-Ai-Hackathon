@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import type { CareerFormData, UserPersona } from '../types';
-import { LightbulbIcon, DumbbellIcon, BrainIcon, SparklesIcon, AcademicCapIcon, DocumentTextIcon, UsersIcon, BriefcaseIcon } from './icons';
+import { LightbulbIcon, DumbbellIcon, BrainIcon, SparklesIcon, AcademicCapIcon, DocumentTextIcon, UsersIcon, BriefcaseIcon, TargetIcon } from './icons';
 
 interface CareerFormProps {
   onSubmit: (data: CareerFormData) => void;
@@ -116,25 +116,27 @@ export const CareerForm: React.FC<CareerFormProps> = ({ onSubmit, isLoading, per
        )}
 
       <FormSection title={isProfessional ? "Your Professional Profile" : "About You"}>
-          <FormField
-            id="interests"
-            label={isProfessional ? "Professional Interests & Passions" : "Your Interests"}
-            placeholder={isProfessional ? "e.g., Sustainable technology, data visualization, mentoring junior developers, public speaking..." : "e.g., building with LEGOs, drawing fantasy maps, reading about ancient history, video games..."}
-            value={formData.interests}
-            onChange={handleChange}
-            icon={<LightbulbIcon />}
-            required
-          />
           {!isProfessional && (
-            <FormField
-                id="physicalActivities"
-                label="Your Physical Activities"
-                placeholder="e.g., love running long distances, good at team sports like basketball, enjoy hiking and being outdoors..."
-                value={formData.physicalActivities}
+            <>
+              <FormField
+                id="interests"
+                label="Your Interests"
+                placeholder="e.g., building with LEGOs, drawing fantasy maps, reading about ancient history, video games..."
+                value={formData.interests}
                 onChange={handleChange}
-                icon={<DumbbellIcon />}
+                icon={<LightbulbIcon />}
                 required
-            />
+              />
+              <FormField
+                  id="physicalActivities"
+                  label="Your Physical Activities"
+                  placeholder="e.g., love running long distances, good at team sports like basketball, enjoy hiking and being outdoors..."
+                  value={formData.physicalActivities}
+                  onChange={handleChange}
+                  icon={<DumbbellIcon />}
+                  required
+              />
+            </>
           )}
           <FormField
             id="cognitiveAbilities"
@@ -190,6 +192,7 @@ export const CareerForm: React.FC<CareerFormProps> = ({ onSubmit, isLoading, per
                 onChange={handleChange}
                 icon={<BriefcaseIcon />}
                 as="input"
+                required
               />
               <FormField
                 id="industry"
@@ -199,6 +202,7 @@ export const CareerForm: React.FC<CareerFormProps> = ({ onSubmit, isLoading, per
                 onChange={handleChange}
                 icon={<BriefcaseIcon />}
                 as="input"
+                required
               />
             </>
           )}
@@ -208,7 +212,7 @@ export const CareerForm: React.FC<CareerFormProps> = ({ onSubmit, isLoading, per
             placeholder={achievementsPlaceholder}
             value={formData.achievements}
             onChange={handleChange}
-            icon={<AcademicCapIcon />}
+            icon={isProfessional ? <TargetIcon /> : <AcademicCapIcon />}
           />
           <FormField
             id="certifications"

@@ -13,39 +13,38 @@ const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 export const generateCareerAdvice = async (userInfo: UserInfo, formData: CareerFormData): Promise<string> => {
   try {
-    let prompt = `
-      Here is a user's profile:
-      - Name: ${userInfo.name}
-      - Age: ${userInfo.age}
-      - Current Status: ${userInfo.persona === 'professional' ? 'Working Professional' : `${userInfo.persona.charAt(0).toUpperCase() + userInfo.persona.slice(1)} Student`}
-    `;
+    const profileDetails: string[] = [
+      `- Name: ${userInfo.name}`,
+      `- Age: ${userInfo.age}`,
+    ];
 
-    // Add persona-specific fields and common data
-    if (userInfo.persona === 'school' && formData.grade) {
-      prompt += `\n- Grade: ${formData.grade}`;
-    }
-    if (userInfo.persona === 'college') {
-      if (formData.degree) prompt += `\n- Degree / Field of Study: ${formData.degree}`;
-      if (formData.expertise) prompt += `\n- Key Expertise: ${formData.expertise}`;
-    }
     if (userInfo.persona === 'professional') {
-      if (formData.jobTitle) prompt += `\n- Job Title: ${formData.jobTitle}`;
-      if (formData.industry) prompt += `\n- Industry: ${formData.industry}`;
-      prompt += `\n- Core Competencies & Strengths: ${formData.cognitiveAbilities}`;
-      prompt += `\n- Professional Interests & Passions: ${formData.interests}`;
-      if (formData.achievements) prompt += `\n- Professional Achievements: ${formData.achievements}`;
-      if (formData.certifications) prompt += `\n- Professional Development & Certifications: ${formData.certifications}`;
+      profileDetails.push(`- Current Status: Working Professional`);
+      if (formData.jobTitle) profileDetails.push(`- Job Title: ${formData.jobTitle}`);
+      if (formData.industry) profileDetails.push(`- Industry: ${formData.industry}`);
+      profileDetails.push(`- Core Competencies & Strengths: ${formData.cognitiveAbilities}`);
+      if (formData.achievements) profileDetails.push(`- Professional Achievements: ${formData.achievements}`);
+      if (formData.certifications) profileDetails.push(`- Professional Development & Certifications: ${formData.certifications}`);
     } else {
-      // For school and college
-      prompt += `\n- Interests: ${formData.interests}`;
-      if (formData.physicalActivities) prompt += `\n- Physical Activities: ${formData.physicalActivities}`;
-      prompt += `\n- Thinking Style: ${formData.cognitiveAbilities}`;
-      if (formData.achievements) prompt += `\n- Academic Achievements: ${formData.achievements}`;
-      if (formData.certifications) prompt += `\n- Certifications & Courses: ${formData.certifications}`;
-      if (formData.extracurriculars) prompt += `\n- Extracurriculars: ${formData.extracurriculars}`;
+      profileDetails.push(`- Current Status: ${userInfo.persona.charAt(0).toUpperCase() + userInfo.persona.slice(1)} Student`);
+      if (userInfo.persona === 'school' && formData.grade) {
+        profileDetails.push(`- Grade: ${formData.grade}`);
+      }
+      if (userInfo.persona === 'college') {
+        if (formData.degree) profileDetails.push(`- Degree / Field of Study: ${formData.degree}`);
+        if (formData.expertise) profileDetails.push(`- Key Expertise: ${formData.expertise}`);
+      }
+      profileDetails.push(`- Interests: ${formData.interests}`);
+      if (formData.physicalActivities) profileDetails.push(`- Physical Activities: ${formData.physicalActivities}`);
+      profileDetails.push(`- Thinking Style: ${formData.cognitiveAbilities}`);
+      if (formData.achievements) profileDetails.push(`- Academic Achievements: ${formData.achievements}`);
+      if (formData.certifications) profileDetails.push(`- Certifications & Courses: ${formData.certifications}`);
+      if (formData.extracurriculars) profileDetails.push(`- Extracurriculars: ${formData.extracurriculars}`);
     }
 
-    prompt += `
+    const prompt = `
+      Here is a user's profile:
+      ${profileDetails.join('\n      ')}
 
       Based on this comprehensive profile, please provide a personalized career path recommendation.
     `;
